@@ -7,6 +7,7 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
 const app=express();
+const port=process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
@@ -41,10 +42,6 @@ app.get('/todos/:id',(req,res)=>{
   }).catch((err)=>{
     res.status(400).send({})
   })
-
-
-
-
 })
 
 app.post('/todos',(req,res)=>{
@@ -59,8 +56,28 @@ app.post('/todos',(req,res)=>{
     })
 })
 
-app.listen(3000,()=>{
-  console.log("Started on port 3000")
+app.delete('/todos/:id',(req,res)=>{
+  let id=req.params.id;
+  if(!ObjectId.isValid(id)){
+    return res.status(400).send({})
+  }
+
+  Todo.findByIdAndRemove(id).then((result)=>{
+    if(result){
+      res.status(200).send({
+        status:"Deleted",
+        msg:"Todo successfully deleted"
+      })
+    } else {
+      res.status(400).send("unable find for id")
+    }
+  },(err)=>{
+    res.status(400).send("Some error occured")
+  })
+})
+
+app.listen(port,()=>{
+  console.log(`Started on ${port}`)
 })
 
 module.exports={app}
