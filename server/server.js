@@ -19,9 +19,9 @@ app.get('/',(req,res)=>{
 })
 
 app.get('/todos',(req,res)=>{
-  Todo.find().then((doc)=>{
+  Todo.find().then((todos)=>{
     res.status(200).send({
-      doc
+      todos
     })
   },(err)=>{
     res.status(400).send('unable to get todos : '+err)
@@ -36,11 +36,11 @@ app.get('/todos/:id',(req,res)=>{
     return res.status(404).send({})
   }
 
-  Todo.findById(id).then((doc)=>{
-    if(!doc){
-      res.status(404).send({})
+  Todo.findById(id).then((todo)=>{
+    if(!todo){
+      return res.status(404).send({})
     }
-    res.status(200).send({doc})
+    res.status(200).send({todo})
   }).catch((err)=>{
     res.status(400).send({})
   })
@@ -61,17 +61,14 @@ app.post('/todos',(req,res)=>{
 app.delete('/todos/:id',(req,res)=>{
   let id=req.params.id;
   if(!ObjectId.isValid(id)){
-    return res.status(400).send({})
+    return res.status(404).send({})
   }
 
-  Todo.findByIdAndRemove(id).then((result)=>{
-    if(result){
-      res.status(200).send({
-        status:"Deleted",
-        msg:"Todo successfully deleted"
-      })
+  Todo.findByIdAndRemove(id).then((todo)=>{
+    if(todo){
+      res.status(200).send({todo})
     } else {
-      res.status(400).send("unable find for id")
+      res.status(404).send("unable find for id")
     }
   },(err)=>{
     res.status(400).send("Some error occured")
